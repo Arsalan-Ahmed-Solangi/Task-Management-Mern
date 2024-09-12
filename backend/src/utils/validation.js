@@ -4,7 +4,7 @@ const joi = require("joi");
 
 //****CreatingSchemaObject*******//
 const createSchemaObject = (schema) => {
-    return joi.object(schema);
+    return joi.object(schema).unknown(true);
 }
 
 //****ValidateRequest*****//

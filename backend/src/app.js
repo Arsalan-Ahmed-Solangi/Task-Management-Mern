@@ -20,9 +20,11 @@ connectDB();
 //***RouteSettings*******//
 const roleRoutes = require("./routes/roleRoutes");
 const authRoutes = require("./routes/authRoutes");
+const clientRoutes = require("./routes/clientRoutes");
 const { authToken } = require('./middlewares/authMiddleware');
 
 app.use("/auth", authRoutes); 
+app.use("/client",clientRoutes);
 app.use("/role",authToken, roleRoutes);
 
 //****TestAPI*****//

@@ -16,10 +16,6 @@ const clientSchema = mongoose.Schema({
         required:true,
         isUnique: true,
     },
-    Password: {
-        type: String,
-        required: true,
-    },
     Status: {
         type: String,
         enum: ["Active", "Inactive"],
