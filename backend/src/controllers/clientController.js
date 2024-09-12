@@ -32,6 +32,92 @@ exports.getClients = async (req, res) => {
 }
 //***End of GetClients*****//
 
+//***Start of getClientDetails*****//
+exports.getClientDetails = async (req, res) => {
+
+
+    const schema = {
+        ClientId: joi.string().required().messages({
+            'any.required': "Client name is required!"
+        })
+
+    }
+    const { error } = validateRequest(req.body, schema);
+    if (error) {
+        return res.status(401).json({
+            success: false,
+            message: "Validation Failed",
+            error: error.details
+        });
+    }
+
+    try {
+
+        const { ClientId } = req.body;
+        const getData = await Client.findById(ClientId);
+        if (!getData) {
+            return res.status(400).json({
+                success: false,
+
+                error: "No Client Found"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Client Details fetched successfully!",
+            data: getData
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+//***End of getClientDetails*****//
+
+//****Start of DeleteClient*****//
+exports.deleteClients = async (req, res) => {
+    const schema = {
+        ClientId: joi.string().required().messages({
+            'any.required': "Client name is required!"
+        })
+
+    }
+    const { error } = validateRequest(req.body, schema);
+    if (error) {
+        return res.status(401).json({
+            success: false,
+            message: "Validation Failed",
+            error: error.details
+        });
+    }
+
+    try {
+
+        const { ClientId } = req.body;
+        const result = await Client.deleteOne({ _id: ClientId });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No Client Found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Client deleted successfully!"
+        });
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+//****End of DeleteClient*****//
+
 //***Start of CreateClient*****//
 exports.create = async (req, res) => {
 
@@ -88,23 +174,28 @@ exports.create = async (req, res) => {
                 error: `${ClientName} Client is already exists!`,
             })
         }
-        return res.send("Work");
+
+        let profileImagePath = null;
+        if (req.file) {
+            profileImagePath = req.file.path;
+        }
+
+
         const saveData = new Client({
-            ClientName, Email, Phone, Status, Address, Website, Country, City, Address
+            ClientName, Profile: profileImagePath, Email, Phone, Status, Address, Website, Country, City, Address
         })
         await saveData.save();
 
         if (!saveData) {
             return res.status(200).json({
                 success: false,
-                error: `${RoleName} failed to create!`,
+                error: `${ClientName} failed to create!`,
             })
 
         }
-
         return res.status(200).json({
             success: true,
-            message: `${RoleName} Role created successfully!`,
+            message: `${ClientName} Client created successfully!`,
         })
 
     } catch (error) {
@@ -116,3 +207,82 @@ exports.create = async (req, res) => {
 
 }
 //***End of CreateClient*****//
+
+//***Start of updateClient*****//
+exports.updateClient = async (req, res) => {
+
+
+    //****Validations*****//
+    const schema = {
+        ClientId: joi.string().required().messages({
+            'any.required': "ClientId is required!"
+        }),
+        ClientName: joi.string().min(3).required()
+            .messages({
+                "string.empty": "Client name is required!",
+                "string.min": "Client name must be at least 3 characters",
+                'any.required': "Client name is required!"
+            }),
+        Email: joi.string().email().required()
+            .messages({
+                "string.email": "Email must be a valid email address",
+                "string.empty": "Email is required!",
+                "any.required": "Email is required!",
+
+            }),
+        Phone: joi.string().optional(),
+        Status: joi.string().optional(),
+        Address: joi.string().optional(),
+        Website: joi.string().optional(),
+        Country: joi.string().optional(),
+        City: joi.string().optional()
+
+    }
+    const { error } = validateRequest(req.body, schema);
+    if (error) {
+        return res.status(401).json({
+            success: false,
+            message: "Validation Failed",
+            error: error.details
+        });
+    }
+
+    try {
+
+
+        const { ClientId,...updateFields } = req.body
+        const Email = updateFields.Email;
+        const checkExists = await Client.findOne({ Email, _id: { $ne: ClientId } }).select('ClientName Email Profile');
+        if (checkExists) {
+            return res.status(400).json({
+                success: false,
+                error: `Email already assigned to another one!`,
+            })
+        }
+    
+        if (req.file) {
+            updateFields.Profile = req.file.path 
+        }
+     
+        const updatedClient = await Client.findByIdAndUpdate(ClientId, updateFields);
+        if (!updatedClient) {
+            return res.status(404).json({   
+                success: false,
+                message: "Client not found"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Client updated successfully!",
+
+        });
+  
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+
+}
+//***End of updateClient*****//
