@@ -1,7 +1,6 @@
 //*****ImportingPackages*****//
 const express = require("express");
 const { createRole, getRoles, getRoleDetails, updateRole } = require("../controllers/roleController");
-const { authToken } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 

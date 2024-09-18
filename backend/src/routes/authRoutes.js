@@ -1,7 +1,7 @@
 //*****ImportingPackages*****//
 const express = require("express");
 const { authLogin, signup, sendOTP, verifyOTP, resetPassword } = require("../controllers/authController");
-const { authToken } = require("../middlewares/authMiddleware");
+const { authToken } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 

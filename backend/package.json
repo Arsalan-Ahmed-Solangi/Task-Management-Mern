@@ -17,6 +17,8 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",
     "jsonwebtoken": "^9.0.2",
+    "mobile-detect": "^1.4.5",
+    "morgan": "^1.10.0",
     "nodemailer": "^6.9.15",
     "nodemon": "^3.1.4",
     "openai": "^4.58.1",

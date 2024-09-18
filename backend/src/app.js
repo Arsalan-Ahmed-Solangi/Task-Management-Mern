@@ -6,7 +6,15 @@ const cors = require('cors');
 const { limiter } = require('./utils/rateLimiter');
 const connectDB = require('./config/database');
 const port = process.env.PORT;
+const deviceDetect = require("mobile-detect");
 const path = require("path");
+const morgan = require("morgan");
+
+
+
+
+//****DBConnection*****//
+connectDB();  
 
 
 //*****Middlewares*****//
@@ -14,27 +22,32 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(cors()); 
 app.use(express.json());
 app.use(limiter);
+app.use(morgan());
 
-
-//****DBConnection*****//
-connectDB();
 
 //***RouteSettings*******//
 const roleRoutes = require("./routes/roleRoutes");
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
-const { authToken } = require('./middlewares/authMiddleware');
+// const { authToken } = require('./middlewares/auth.middleware');
 
 app.use("/auth", authRoutes); 
 app.use("/client",clientRoutes);
-app.use("/role",authToken, roleRoutes);
+app.use("/role", roleRoutes);
 
 //****TestAPI*****//
 app.get("/", (req, res) => {
-    return res.status(200).json({
-        sucess: true,
-        message: "WELCOME TO TASK MANGEMENT BACKEND!"
-    })
+    const checkDevice = new deviceDetect(req.headers['user-agent']);
+    if(checkDevice.mobile()){
+        return res.status(200).json({
+            sucess: true,
+            message: "WELCOME TO TASK MANGEMENT BACKEND!",
+        })
+    }else{
+        console.log(checkDevice);
+        return res.send("WELCOME TO TASK MANAGEMENT SYSTEM")
+    }
+ 
 })
 
 //****No-Route-Found******//

@@ -252,17 +252,16 @@ exports.updateClient = async (req, res) => {
 
         const { ClientId,...updateFields } = req.body
         const Email = updateFields.Email;
-        const checkExists = await Client.findOne({ Email, _id: { $ne: ClientId } }).select('ClientName Email Profile');
+        const checkExists = await Client.findOne({ Email, _id: { $ne: ClientId } });
         if (checkExists) {
             return res.status(400).json({
                 success: false,
                 error: `Email already assigned to another one!`,
             })
         }
-    
-        if (req.file) {
-            updateFields.Profile = req.file.path 
-        }
+
+        const getClientProfile = await Client.findById(ClientId).select("Profile");
+        return res.send(getClientProfile);
      
         const updatedClient = await Client.findByIdAndUpdate(ClientId, updateFields);
         if (!updatedClient) {
