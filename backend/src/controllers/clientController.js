@@ -250,8 +250,35 @@ exports.updateClient = async (req, res) => {
     try {
 
 
-        const { ClientId,...updateFields } = req.body
-        const Email = updateFields.Email;
+        const { ClientName, ClientId, Email, Phone, Status, Country, City, Address, Website } = req.body;
+  
+        const client = await Client.findById(ClientId);
+        if (!client) {
+            return res.status(404).json({
+                success: false,
+                error: `Client not found!`,
+            });
+        }
+    
+        if (Email && Email !== client.Email) {
+            const checkExists = await Client.findOne({ Email });
+            if (checkExists) {
+                return res.status(400).json({
+                    success: false,
+                    error: `${ClientName} Client with this email already exists!`,
+                });
+            }
+        }
+
+        client.ClientName = ClientName || client.ClientName;
+        client.Email = Email || client.Email;
+        client.Phone = Phone || client.Phone;
+        client.Status = Status || client.Status;
+        client.Country = Country || client.Country;
+        client.City = City || client.City;
+        client.Address = Address || client.Address;
+        client.Website = Website || client.Website;
+
         const checkExists = await Client.findOne({ Email, _id: { $ne: ClientId } });
         if (checkExists) {
             return res.status(400).json({
@@ -260,25 +287,27 @@ exports.updateClient = async (req, res) => {
             })
         }
 
-        const getClientProfile = await Client.findById(ClientId).select("Profile");
-        return res.send(getClientProfile);
-     
-        const updatedClient = await Client.findByIdAndUpdate(ClientId, updateFields);
+        if (req.file) {
+            client.Profile = req.file.path;
+        }
+        const updatedClient = await client.save();
+
         if (!updatedClient) {
-            return res.status(404).json({   
+            return res.status(400).json({
                 success: false,
-                message: "Client not found"
+                error: `${ClientName} failed to update!`,
             });
         }
+
         return res.status(200).json({
             success: true,
-            message: "Client updated successfully!",
-
+            message: `${ClientName} Client updated successfully!`,
         });
-  
+
     } catch (error) {
         return res.status(400).json({
             success: false,
+        
             error: error.message
         });
     }

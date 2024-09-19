@@ -14,12 +14,12 @@ const morgan = require("morgan");
 
 
 //****DBConnection*****//
-connectDB();  
+connectDB();
 
 
 //*****Middlewares*****//
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
 app.use(limiter);
 app.use(morgan());
@@ -29,25 +29,27 @@ app.use(morgan());
 const roleRoutes = require("./routes/roleRoutes");
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
-// const { authToken } = require('./middlewares/auth.middleware');
+const projectRoutes = require("./routes/projectRoutes");
 
-app.use("/auth", authRoutes); 
-app.use("/client",clientRoutes);
+
+app.use("/auth", authRoutes);
+app.use("/client", clientRoutes);
 app.use("/role", roleRoutes);
+app.use("/project", projectRoutes);
 
 //****TestAPI*****//
 app.get("/", (req, res) => {
     const checkDevice = new deviceDetect(req.headers['user-agent']);
-    if(checkDevice.mobile()){
+    if (checkDevice.mobile()) {
         return res.status(200).json({
             sucess: true,
             message: "WELCOME TO TASK MANGEMENT BACKEND!",
         })
-    }else{
+    } else {
         console.log(checkDevice);
         return res.send("WELCOME TO TASK MANAGEMENT SYSTEM")
     }
- 
+
 })
 
 //****No-Route-Found******//
