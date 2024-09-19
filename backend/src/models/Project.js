@@ -7,9 +7,16 @@ const projectSchema = mongoose.Schema({
         ref: "User",
         required: true,
     }],
+    ClientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Client",
+        required: true,
+    },
     ProjectName: {
         type: String,
+        unique: true,
         required: true
+
     },
     Description: {
         type: String,

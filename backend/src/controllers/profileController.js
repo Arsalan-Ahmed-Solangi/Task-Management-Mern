@@ -9,7 +9,12 @@ exports.getProjects = async (req, res) => {
 
     try {
 
-        const getData = await Project.find();
+        const getData = await Project.find().populate({
+            path: "UserIds", select: "Name Designation Status"
+        }).populate({
+            path: "ClientId",
+            select: "ClientName Website Profile Email Phone"
+        }).exec();
         if (!getData) {
             return res.status(400).json({
                 success: false,
@@ -31,28 +36,85 @@ exports.getProjects = async (req, res) => {
 }
 //***End of getProjects*****//
 
+//***Start of getSingleProject****//
+exports.getSingleProjectDetails = async (req, res) => {
+    try {
+
+
+        //****Validations*****//
+        const schema = {
+
+            ProjectId: joi.string().required()
+
+        }
+        const { error } = validateRequest(req.body, schema);
+        if (error) {
+            return res.status(401).json({
+                success: false,
+                message: "Validation Failed",
+                error: error.details
+            });
+        }
+        const { ProjectId } = req.body;
+        const getData = await Project.findById(ProjectId).populate({
+            path: "UserIds", select: "Name Designation Status"
+        }).populate({
+            path: "ClientId",
+            select: "ClientName Website Profile Email Phone"
+        }).exec();
+        if (!getData) {
+            return res.status(400).json({
+                success: false,
+                error: "No Projects Found"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Project Details fetched successfully!",
+            data: getData
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+//***End of getSingleProject*******//
+
 //***Start of createProject*****//
 exports.create = async (req, res) => {
 
 
     //****Validations*****//
     const schema = {
+
         ProjectName: joi.string().min(3).required()
             .messages({
                 "string.empty": "Project name is required!",
                 "string.min": "Project name must be at least 3 characters",
                 'any.required': "Project name is required!"
             }),
-       
+
         Status: joi.string().required().messages({
             'any.required': "Status is required",
             'string.empty': "Status is required!",
         }),
+        ClientId: joi.string().required(),
+        Description: joi.string().required(),
         budget: joi.number().required(),
-        startDate : joi.date().required(),
-        endDate : joi.date().required(),
-
-        
+        startDate: joi.date().required(),
+        endDate: joi.date().required(),
+        UserIds: joi.array().items(
+            joi.string().required().messages({
+                "any.required": "User ID is required",
+                "string.empty": "User ID cannot be empty"
+            })
+        ).min(1).required().messages({
+            "array.min": "At least one User ID is required",
+            "any.required": "UserIds are required"
+        })
 
     }
     const { error } = validateRequest(req.body, schema);
@@ -63,40 +125,33 @@ exports.create = async (req, res) => {
             error: error.details
         });
     }
-    return res.send("Wor")
+
     try {
 
-
-        const { ClientName, Email, Phone, Status, Country, City, Address, Website } = req.body
-        const checkExists = await Client.findOne({ Email });
+        const { ProjectName, ClientId, Status, Description, budget, startDate, endDate, UserIds } = req.body;
+        const checkExists = await Project.findOne({ ProjectName });
         if (checkExists) {
             return res.status(400).json({
                 success: false,
-                error: `${ClientName} Client is already exists!`,
+                error: `${ProjectName} Project is already exists!`,
             })
         }
 
-        let profileImagePath = null;
-        if (req.file) {
-            profileImagePath = req.file.path;
-        }
-
-
-        const saveData = new Client({
-            ClientName, Profile: profileImagePath, Email, Phone, Status, Address, Website, Country, City, Address
+        const saveData = new Project({
+            ProjectName, Status, ClientId, Description, startDate, endDate, budget, UserIds
         })
         await saveData.save();
 
         if (!saveData) {
             return res.status(200).json({
                 success: false,
-                error: `${ClientName} failed to create!`,
+                error: `${ProjectName} failed to create!`,
             })
 
         }
         return res.status(200).json({
             success: true,
-            message: `${ClientName} Client created successfully!`,
+            message: `${ProjectName} Project created successfully!`,
         })
 
     } catch (error) {
@@ -105,6 +160,5 @@ exports.create = async (req, res) => {
             error: error.message
         });
     }
-
 }
 //***End of createProject*****//
