@@ -1,0 +1,26 @@
+body {
+    height: 100vh;
+    width: 100%;
+    background-image: url('/images/back.jpg');
+    background-color: rgba(0, 0, 0, 0.1);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.text-custom{
+    color:#0A264C
+}
+.btn-primary{
+    background: #0A264C;
+}
+.bg-custom{
+    background: #0A264C;
+}
+
+.error-message {
+    font-size: 10px;
+    color: red;
+  }
