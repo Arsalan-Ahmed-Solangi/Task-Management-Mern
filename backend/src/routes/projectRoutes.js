@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../config/multerConfig");
-const { getProjects, create, getSingleProjectDetails, update, addProjectStaff, removeProjectStaff } = require("../controllers/profileController");
+const { getProjects, create, getSingleProjectDetails, update, addProjectStaff, removeProjectStaff } = require("../controllers/projectController");
 
 
 //***getProjects*****//

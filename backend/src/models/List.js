@@ -16,7 +16,7 @@ const listSchema = mongoose.Schema({
 
     },
     Order:{
-        type:number,
+        type:Number,
         required:true
     }
 }, {
