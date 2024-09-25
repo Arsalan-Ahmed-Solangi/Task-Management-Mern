@@ -15,10 +15,7 @@ const listSchema = mongoose.Schema({
         required: true
 
     },
-    Order:{
-        type:Number,
-        required:true
-    }
+  
 }, {
     timestamps: true
 });

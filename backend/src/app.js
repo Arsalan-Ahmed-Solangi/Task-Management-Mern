@@ -31,12 +31,14 @@ const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const listRoutes = require("./routes/listRoutes");
+const getTasks = require("./routes/taskRoutes.js");
 
 app.use("/auth", authRoutes);
 app.use("/client", clientRoutes);
 app.use("/role", roleRoutes);
 app.use("/project", projectRoutes);
-app.use("/list",listRoutes);
+app.use("/list",listRoutes);    
+app.use("/task",getTasks);
 
 //****TestAPI*****//
 app.get("/", (req, res) => {
